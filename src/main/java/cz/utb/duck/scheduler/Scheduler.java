@@ -1,29 +1,35 @@
 package cz.utb.duck.scheduler;
 
 import cz.utb.duck.service.YahooDataService;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
-@NoArgsConstructor
 @RequiredArgsConstructor
-@AllArgsConstructor
+@Slf4j
 public class Scheduler {
+
     @Autowired
-    private YahooDataService yahooDataService;
+    private final YahooDataService yahooDataService;
 
-/*
-    public Scheduler(YahooDataService yahooDataService) {
-        this.yahooDataService = yahooDataService;
-    }
-*/
+    protected boolean isRunning = false;
 
-    @Scheduled(cron = "0 0 0 * * MON-FRI") // Run every day at midnight
+    @Scheduled(fixedDelayString = "30000", initialDelayString = "4000")
     public void downloadStockData() {
-        yahooDataService.downloadHistoricalData();
+        if (isRunning)
+            log.warn("already running ");
+        else {
+            try {
+                isRunning = true;
+                yahooDataService.downloadHistoricalData();
+            } catch (Exception e) {
+                log.error("sth went wrong while calling the yahoo service [{}]", e.getMessage());
+            } finally {
+                isRunning = false;
+            }
+        }
     }
 }

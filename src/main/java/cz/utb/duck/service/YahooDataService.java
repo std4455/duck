@@ -1,5 +1,7 @@
 package cz.utb.duck.service;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import yahoofinance.YahooFinance;
 import yahoofinance.histquotes.HistoricalQuote;
@@ -10,6 +12,8 @@ import java.util.Calendar;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class YahooDataService {
 
     public void downloadHistoricalData() {
@@ -22,13 +26,9 @@ public class YahooDataService {
             List<HistoricalQuote> quotes = YahooFinance.get(symbol).getHistory(from, to);
             if (quotes != null && !quotes.isEmpty()) {
                 writeToCSV(quotes, symbol + "_historical_data.csv");
-                System.out.println("Historical data for " + symbol + " has been successfully downloaded and stored in a CSV file.");
-            } else {
-                System.out.println("No historical data found for " + symbol);
             }
         } catch (IOException e) {
-            e.printStackTrace();
-
+            log.error("Error happened while getting yahoo data [{}] ", e.getMessage());
         }
 
     }
@@ -49,7 +49,7 @@ public class YahooDataService {
                 writer.append(String.valueOf(quote.getVolume())).append("\n");
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Error happened while writing in csv [{}] ", e.getMessage());
         }
     }
 }
