@@ -1,5 +1,6 @@
 package cz.utb.duck.scheduler;
 
+import cz.utb.duck.service.DataService;
 import cz.utb.duck.service.YahooDataService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,9 @@ public class Scheduler {
     @Autowired
     private final YahooDataService yahooDataService;
 
+    @Autowired
+    private final DataService dataService;
+
     protected boolean isRunning = false;
 
     @Scheduled(fixedDelayString = "30000", initialDelayString = "4000")
@@ -24,7 +28,8 @@ public class Scheduler {
         else {
             try {
                 isRunning = true;
-                yahooDataService.downloadHistoricalData();
+                //yahooDataService.downloadHistoricalData();
+                dataService.getDate();
             } catch (Exception e) {
                 log.error("sth went wrong while calling the yahoo service [{}]", e.getMessage());
             } finally {
