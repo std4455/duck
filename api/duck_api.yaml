@@ -1,0 +1,102 @@
+openapi: "3.0.0"
+info:
+  title: Duck
+  description: >
+    one day is to be written.
+  contact:
+    name: Josha Shoja
+    url: https://www.github.com
+    email: s_murodov@utb.cz
+  version: 1.0.0
+servers:
+  - url: https://lazy.duck.cz/api/v1
+    description: ducks can swim, walk and fly
+security:
+  - duck_auth:
+      - admin
+      - guest
+
+paths:
+  /data:
+    get:
+      tags:
+        - "get data"
+      summary: "retrieve historical data"
+      description: >
+        testing external api
+      operationId: "getData"
+      response:
+        "200":
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataInfo'
+        "400":
+          $ref: '#/components/responses/400'
+        "401":
+          $ref: '#/components/responses/401'
+        "403":
+          $ref: '#/components/responses/403'
+      security:
+        - duck_auth: [guest, admin]
+
+components:
+  securitySchemas:
+    duck_auth:
+      type: auth2
+      flows:
+        authorizationCode:
+          authorizationUrl: TBD
+          tokenUrl: TBD
+          scopes:
+            admin: admin operation
+            guest: guest operation
+
+
+  schemas:
+
+    Error:
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+      required:
+        - code
+        - message
+
+    DataInfo:
+      type: object
+      properties:
+        name:
+          type: string
+        time:
+          type: array
+          items:
+            type: string
+        price:
+          type: array
+          items:
+            type: string
+
+  responses:
+
+    400:
+      description: Bad request
+      content:
+        application/json:
+          schemas:
+            $ref: '#/components/schemas/Error'
+    401:
+      description: Authorization failed
+      content:
+        application/json:
+          schemas:
+            $ref: '#/components/schemas/Error'
+    403:
+      description: Forbidden resources
+      content:
+        application/json:
+          schemas:
+            $ref: '#/components/schemas/Error'

@@ -74,10 +74,71 @@
 			<artifactId>postgresql</artifactId>
 			<version>42.7.2</version> <!-- Use the latest version -->
 		</dependency>
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.swagger.core.v3</groupId>
+			<artifactId>swagger-annotations</artifactId>
+			<version>2.2.20</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.validation</groupId>
+			<artifactId>validation-api</artifactId>
+			<version>2.0.1.Final</version>
+		</dependency>
 	</dependencies>
 
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>io.swagger.codegen.v3</groupId>
+				<artifactId>swagger-codegen-maven-plugin</artifactId>
+				<version>3.0.51</version>
+				<executions>
+					<execution>
+						<id>generatedSources</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<phase>process-resources</phase>
+						<configuration>
+							<inputSpec>${project.basedir}/api/duck_api.yaml</inputSpec>
+							<language>spring</language>
+							<output>target/generated-sources</output>
+							<configOptions>
+								<modelPackage>${project.groupId}.duck.model</modelPackage>
+								<apiPackage>${project.groupId}.duck.api</apiPackage>
+								<dateLibrary>java21</dateLibrary>
+								<generatingSupportingFiles>false</generatingSupportingFiles>
+								<interfaceOnly>true</interfaceOnly>
+								<hideGenerationTimestamp>true</hideGenerationTimestamp>
+								<ignoreFileOverride>${project.build.directory}/generated-sources/.openapi-generator-ignore</ignoreFileOverride>
+							</configOptions>
+						</configuration>
+					</execution>
+					<execution>
+						<id>generatedDocs</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<phase>process-resources</phase>
+						<configuration>
+							<inputSpec>${project.basedir}/api/duck_api.yaml</inputSpec>
+							<language>html2</language>
+							<output>${project.build.directory}/generated-docs/html</output>
+							<configOptions>
+								<modelPackage>${project.groupId}.duck.model</modelPackage>
+								<apiPackage>${project.groupId}.duck.api</apiPackage>
+								<dateLibrary>java21</dateLibrary>
+								<generatingSupportingFiles>false</generatingSupportingFiles>
+								<hideGenerationTimestamp>true</hideGenerationTimestamp>
+							</configOptions>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
@@ -88,6 +149,22 @@
 							<artifactId>lombok</artifactId>
 						</exclude>
 					</excludes>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.flywaydb</groupId>
+				<artifactId>flyway-maven-plugin</artifactId>
+				<version>7.9.2</version> <!-- Use the same version as the Flyway core -->
+				<configuration>
+					<url>jdbc:postgresql://localhost:5432/ds</url>
+					<user>king</user>
+					<password>123_Lee</password>
+					<schemas>
+						<schema>ds</schema>
+					</schemas>
+					<locations>
+						<location>filesystem:src/main/resources/db/migration</location>
+					</locations>
 				</configuration>
 			</plugin>
 		</plugins>
